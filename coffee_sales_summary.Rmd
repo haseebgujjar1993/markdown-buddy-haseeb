@@ -1,0 +1,79 @@
+---
+title: "Documentation: coffee_sales_summary.R"
+author: "Haseeb"
+date: "2026-11-04"
+output: html_document
+---
+
+# Purpose
+
+This document describes `scripts/coffee_sales_summary.R`, the only analysis
+script in this project. The script summarises a synthetic coffee shop sales
+file: revenue per product, revenue per day and the overall average order
+value. It was written for BDA400 Assignment 1 to practice documenting R
+code with R Markdown.
+
+## Inputs
+
+The script expects one CSV file, read with base R:
+
+```r
+sales <- read.csv("data/coffee_sales.csv", stringsAsFactors = FALSE)
+```
+
+| Column       | Type      | Description                          |
+|--------------|-----------|--------------------------------------|
+| `date`       | date      | day the order was placed             |
+| `product`    | character | drink name, six distinct products    |
+| `quantity`   | integer   | cups in the order (1 to 4)           |
+| `unit_price` | numeric   | price per cup in dollars             |
+
+The file is synthetic, generated with a fixed seed, so re-running the
+script always reproduces the same numbers.
+
+## How it works
+
+The script derives a `revenue` column, then aggregates it two ways:
+
+```r
+sales$revenue <- sales$quantity * sales$unit_price
+
+# revenue per product, sorted from best to worst seller
+product_summary <- aggregate(revenue ~ product, data = sales, FUN = sum)
+
+# revenue per calendar day
+daily <- aggregate(revenue ~ date, data = sales, FUN = sum)
+```
+
+Both aggregations use `aggregate()` from base R, so the project has no
+package dependencies.
+
+## Outputs
+
+1. A console report: the product table, the best sales day, the average
+   revenue per day and the average order value.
+2. A CSV file written to `output/product_summary.csv`:
+
+```r
+write.csv(product_summary, "output/product_summary.csv", row.names = FALSE)
+```
+
+The `output/` folder is created on first run if it does not exist.
+
+## How to run
+
+From the repository root:
+
+```r
+source("scripts/coffee_sales_summary.R")
+```
+
+---
+
+*AI Assistance Declaration: I used ChatGPT (free tier, November 2026) for
+formatting suggestions on this document ("Here's my R script description.
+Suggest Markdown formatting and code block examples." and "Add syntax
+highlighting and improve section organization (e.g., # Purpose, ## Inputs,
+## Outputs)."). I verified the document by knitting it and checking every
+code chunk against the real script. All content describes code I ran and
+checked myself.*
